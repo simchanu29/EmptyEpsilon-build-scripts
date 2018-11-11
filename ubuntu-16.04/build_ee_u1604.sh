@@ -11,6 +11,8 @@ EE_BUILD_MINGW_LIBPATH="$(dirname $(locate libgcc.a | grep win32 | grep i686) 2>
 EE_BUILD_MINGW_USRPATH="$(dirname $(locate libwinpthread-1.dll | grep i686) 2> /dev/null)"
 EE_BUILD_DATE="$(date +'%Y%m%d')"
 EE_BUILD_CMAKE="${EE_BUILD_EE_PATH}/cmake"
+EE_BUILD_AUTHOR="simchanu29"
+EE_BUILD_BRANCH="develop"
 
 
 #fix build error for the drmingw toolchain
@@ -42,8 +44,10 @@ fi
 echo
 
 if [ ! -d "${EE_BUILD_EE_PATH}" ]; then
-  echo "-   Cloning EmptyEpsilon repo to ${EE_BUILD_EE_PATH}..."
-  git clone https://github.com/daid/EmptyEpsilon.git "${EE_BUILD_EE_PATH}"
+  echo "-   Cloning EmptyEpsilon from ${EE_BUILD_AUTHOR} repo from ${EE_BUILD_BRANCH} branch to ${EE_BUILD_EE_PATH}..."
+  git clone https://github.com/$EE_BUILD_AUTHOR/EmptyEpsilon.git "${EE_BUILD_EE_PATH}"
+  ( cd "${EE_BUILD_EE_PATH}";
+    git checkout $EE_BUILD_BRANCH; )
 else
   echo "-   Fetching and merging EmptyEpsilon repo at ${EE_BUILD_EE_PATH}..."
   ( cd "${EE_BUILD_EE_PATH}";

@@ -2,3 +2,10 @@
 *.zip
 *.log
 .vagrant
+
+# build folders
+*/drmingw
+*/EE_ZIP
+*/EmptyEpsilon
+*/SeriousProton
+*/SFML-2.4
