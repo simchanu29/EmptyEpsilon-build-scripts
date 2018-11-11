@@ -11,9 +11,16 @@ EE_BUILD_MINGW_LIBPATH="$(dirname $(locate libgcc.a | grep win32 | grep i686) 2>
 EE_BUILD_MINGW_USRPATH="$(dirname $(locate libwinpthread-1.dll | grep i686) 2> /dev/null)"
 EE_BUILD_DATE="$(date +'%Y%m%d')"
 EE_BUILD_CMAKE="${EE_BUILD_EE_PATH}/cmake"
-EE_BUILD_AUTHOR="simchanu29"
-EE_BUILD_BRANCH="develop"
 
+# Choose repository and branch, daid/master is the default one
+EE_BUILD_AUTHOR=$1
+EE_BUILD_BRANCH=$2
+if [ -z "$EE_BUILD_AUTHOR" ]; then
+  EE_BUILD_AUTHOR="daid"
+fi
+if [ -z "$EE_BUILD_AUTHOR" ]; then
+  EE_BUILD_BRANCH="master"
+fi
 
 #fix build error for the drmingw toolchain
 sudo ln -sfn /usr/bin/python3.5 /usr/bin/python
