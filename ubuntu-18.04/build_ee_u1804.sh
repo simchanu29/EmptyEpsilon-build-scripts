@@ -11,8 +11,11 @@ EE_BUILD_MINGW_LIBPATH="$(dirname $(locate libgcc.a | grep win32 | grep i686) 2>
 EE_BUILD_MINGW_USRPATH="$(dirname $(locate libwinpthread-1.dll | grep i686) 2> /dev/null)"
 EE_BUILD_DATE="$(date +'%Y%m%d')"
 EE_BUILD_CMAKE="${EE_BUILD_EE_PATH}/cmake"
+EE_BUILD_AUTHOR="simchanu29"
+EE_BUILD_BRANCH="develop"
 
-#make sure the system is updated. 
+
+#make sure the system is updated.
 sudo apt-get update && sudo apt-get -y upgrade
 
 
@@ -35,7 +38,7 @@ sudo apt purge -y python2.7-minimal
 
 sudo rm -f /usr/bin/python
 sudo ln -sfn /usr/bin/python3.6 /usr/bin/python
-alias python='python3.6' 
+alias python='python3.6'
 
 
 
@@ -54,8 +57,10 @@ fi
 echo
 
 if [ ! -d "${EE_BUILD_EE_PATH}" ]; then
-  echo "-   Cloning EmptyEpsilon repo to ${EE_BUILD_EE_PATH}..."
-  git clone https://github.com/daid/EmptyEpsilon.git "${EE_BUILD_EE_PATH}"
+  echo "-   Cloning EmptyEpsilon from ${EE_BUILD_AUTHOR} repo from ${EE_BUILD_BRANCH} branch to ${EE_BUILD_EE_PATH}..."
+  git clone https://github.com/$EE_BUILD_AUTHOR/EmptyEpsilon.git "${EE_BUILD_EE_PATH}"
+  ( cd "${EE_BUILD_EE_PATH}";
+    git checkout $EE_BUILD_BRANCH; )
 else
   echo "-   Fetching and merging EmptyEpsilon repo at ${EE_BUILD_EE_PATH}..."
   ( cd "${EE_BUILD_EE_PATH}";
@@ -63,7 +68,7 @@ else
 fi
 echo
 
-## Get SFML 
+## Get SFML
 if [ ! -d "${EE_BUILD_SFML_PATH}" ]; then
   echo "-   Cloning SFML repo to ${EE_BUILD_SFML_PATH}..."
   git clone https://github.com/SFML/SFML.git -b "${EE_BUILD_SFML_VERSION}.x" "${EE_BUILD_SFML_PATH}"
