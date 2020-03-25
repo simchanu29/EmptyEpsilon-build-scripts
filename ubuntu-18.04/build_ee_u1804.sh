@@ -90,3 +90,19 @@ cmake .. -G Ninja -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_BUILD_TYPE=Re
 cmake --build . --target package
 
 cp EmptyEpsilon.deb /vagrant/
+
+
+## Build EE for Android
+echo "Building EE for Android"
+cd "${EE_BUILD_EE_PATH}"
+if [ ! -d _build_android ]; then
+  mkdir _build_android
+fi
+cd _build_android
+cmake .. -G Ninja -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM="/usr/bin/ninja" > /vagrant/build.log
+if [ ! -d /home/vagrant/.keystore ]; then
+    keytool -genkeypair -dname "cn=gwaland, ou=na, o=na, c=US" -alias "Android" -keypass password -keystore /home/vagrant/.keystore -storepass password -keyalg RSA -keysize 2048 -validity 10000
+fi
+cmake --build . >> /vagrant/build.log
+
+cp EmptyEpsilon.apk /vagrant/
