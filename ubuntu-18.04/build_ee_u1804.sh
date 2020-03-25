@@ -16,7 +16,7 @@ set -e
 # Update system and install tools.
 if [ ! -d "${EE_BUILD_MINGW_LIBPATH}" ]; then
   echo "Installing tools..."
-  sudo apt update && sudo apt -y install wget cmake build-essential git python-minimal unzip zip mingw-w64 p7zip-full
+  sudo apt update && sudo apt -y install wget cmake build-essential git python-minimal unzip zip mingw-w64 p7zip-full ninja-build libsfml-dev openjdk-8-jdk
   echo
 fi
 
@@ -62,19 +62,31 @@ do (
 echo
 
 
-## Build SFML for Windows.
-echo "Building EE..."
+## Build EE for win32
+echo "Building EE for win32"
 cd "${EE_BUILD_EE_PATH}"
-if [ ! -d win32 ]; then
-  mkdir win32
+if [ ! -d _build_win32 ]; then
+  mkdir _build_win32
 fi
-cd win32
+cd _build_win32
 ### Use the CMake toolchain from EE to make it easier to compile for Windows.
-cmake .. -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw.toolchain -DCMAKE_MAKE_PROGRAM="/usr/bin/make"
+rm -rf script_reference.html
+cmake .. -G Ninja -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw.toolchain -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_MAKE_PROGRAM="/usr/bin/ninja"
+cmake --build . --target package
 
-make -j 3 package
+cp EmptyEpsilon.zip /vagrant/
 
-echo
-# Build EmptyEpsilon.
 
-cp *.zip /vagrant/
+## Build EE for debian
+echo "Building EE for debian"
+cd "${EE_BUILD_EE_PATH}"
+if [ ! -d _build_native ]; then
+  mkdir _build_native
+fi
+cd _build_native
+### Use the CMake toolchain from EE to make it easier to compile for Windows.
+rm -rf script_reference.html
+cmake .. -G Ninja -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_MAKE_PROGRAM="/usr/bin/ninja"
+cmake --build . --target package
+
+cp EmptyEpsilon.deb /vagrant/
