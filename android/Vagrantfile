@@ -3,7 +3,7 @@
 
 
 Vagrant.configure(2) do |config|
-  config.vm.box = "debian/buster64"
+  config.vm.box = "debian/contrib-buster64"
   config.ssh.forward_x11 = true
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 4
