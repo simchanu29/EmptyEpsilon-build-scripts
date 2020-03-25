@@ -4,4 +4,6 @@
 .vagrant
 *.ini
 *.bz2
+*.apk
+*.deb
 ssh
