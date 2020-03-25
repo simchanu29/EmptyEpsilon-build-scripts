@@ -1,13 +1,79 @@
 #!/bin/bash
+EE_BUILD_HOME=`pwd`
+EE_BUILD_EE_PATH="${EE_BUILD_HOME}/EmptyEpsilon"
+EE_BUILD_SP_PATH="${EE_BUILD_HOME}/SeriousProton"
+EE_BUILD_ZIP_PATH="${EE_BUILD_HOME}/EE_ZIP"
+EE_BUILD_DATE="$(date +'%Y%m%d')"
+EE_BUILD_CMAKE="${EE_BUILD_EE_PATH}/cmake"
 
 set -e
 
 sudo apt-get update
 sudo apt-get -y dist-upgrade
-sudo apt-get -y install joe unzip cmake gradle openjdk-8-jdk openjdk-8-jre-headless
-sudo apt -y install tasksel
-sudo tasksel install ubuntu-desktop
-sudo snap install android-studio --classic
+sudo apt-get -y install joe unzip cmake git ninja-build wget build-essential python-minimal zip p7zip-full apt-transport-https ca-certificates wget dirmngr gnupg software-properties-common
+
+#openjdk 8
+wget -qO - https://adoptopenjdk.jfrog.io/adoptopenjdk/api/gpg/key/public | sudo apt-key add -
+sudo add-apt-repository --yes https://adoptopenjdk.jfrog.io/adoptopenjdk/deb/
+sudo apt update
+sudo apt -y install adoptopenjdk-8-hotspot
+
+
+sudo apt purge -y python2.7-minimal
+
+sudo rm -f /usr/bin/python
+sudo ln -sfn /usr/bin/python3.7 /usr/bin/python
+alias python='python3.7' 
+
+
+# Clone repos.
+echo "Cloning or updating git repos..."
+
+## Get SeriousProton and EmptyEpsilon.
+if [ ! -d "${EE_BUILD_SP_PATH}" ]; then
+  echo "-   Cloning SeriousProton repo to ${EE_BUILD_SP_PATH}..."
+  git clone https://github.com/daid/SeriousProton.git "${EE_BUILD_SP_PATH}"
+else
+  echo "-   Fetching and merging SeriousProton repo at ${EE_BUILD_SP_PATH}..."
+  ( cd "${EE_BUILD_SP_PATH}";
+    git fetch --all && git merge --ff-only; )
+fi
+echo
+
+if [ ! -d "${EE_BUILD_EE_PATH}" ]; then
+  echo "-   Cloning EmptyEpsilon repo to ${EE_BUILD_EE_PATH}..."
+  git clone https://github.com/daid/EmptyEpsilon.git "${EE_BUILD_EE_PATH}"
+else
+  echo "-   Fetching and merging EmptyEpsilon repo at ${EE_BUILD_EE_PATH}..."
+  ( cd "${EE_BUILD_EE_PATH}";
+    git fetch --all && git merge --ff-only; )
+fi
+echo
+
+## Write commit IDs for each repo into a file for reference.
+for i in "${EE_BUILD_SP_PATH}" "${EE_BUILD_EE_PATH}"
+do (
+  cd "${i}";
+  echo "$(git log --pretty='oneline' -n 1)" > "${i}/commit.log";
+); done
+echo
+
+
+
+## Build EE for Android
+echo "Building EE for Android"
+cd "${EE_BUILD_EE_PATH}"
+if [ ! -d _build_android ]; then
+  mkdir _build_android
+fi
+cd _build_android
+cmake .. -G Ninja -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_TOOLCHAIN_FILE=../cmake/android.toolchain -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM="/usr/bin/ninja" > /vagrant/build.log
+if [ ! -d /home/vagrant/.keystore ]; then
+    keytool -genkeypair -dname "cn=Bobby Walker, ou=na, o=na, c=US" -alias "Android" -keypass password -keystore /home/vagrant/.keystore -storepass password -keyalg RSA -keysize 2048 -validity 10000
+fi
+cmake --build . >> /vagrant/build.log
+
+cp EmptyEpsilon.apk /vagrant/
 
 
 
@@ -15,28 +81,4 @@ sudo snap install android-studio --classic
 
 
 
-#mkdir -p ~/android-sdk-linux/platform-tools
-#cd ~/android-sdk-linux
-#wget https://dl.google.com/android/repository/sdk-tools-linux-4333796.zip
-#unzip sdk-tools-linux-4333796.zip
 
-#cd ~
-#wget https://github.com/SFML/SFML/archive/2.3.x.zip
-#unzip 2.3.x.zip
-
-
-#export ANDROID_HOME="~/android-sdk-linux"
-#export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$PATH"
-
-#echo 'export ANDROID_HOME="~/android-sdk-linux"' >> ~/.bashrc
-#echo 'export PATH="$ANDROID_HOME/tools:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools/:$PATH"' >> ~/.bashrc
-
-#yes | sdkmanager --licenses
-#sdkmanager ndk-bundle
-#sdkmanager platform-tools
-#sdkmanager "system-images;android-21;default;armeabi-v7a"
-
-
-#android update sdk --all --filter sys-img-armeabi-v7a-android-23 --no-ui --force --use-sdk-wrapper
-
-sudo service gdm3 start
