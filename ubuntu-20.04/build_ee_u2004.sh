@@ -16,16 +16,16 @@ set -e
 # Update system and install tools.
 if [ ! -d "${EE_BUILD_MINGW_LIBPATH}" ]; then
   echo "Installing tools..."
-  sudo apt update && sudo apt -y install wget cmake build-essential git python-minimal unzip zip mingw-w64 p7zip-full ninja-build libsfml-dev openjdk-8-jdk
+  sudo apt update && sudo apt -y install wget cmake build-essential git python3-minimal unzip zip mingw-w64 p7zip-full ninja-build libsfml-dev openjdk-8-jdk
   echo
 fi
 
 #fix build error for the drmingw toolchain
-sudo apt purge -y python2.7-minimal
+#sudo apt purge -y python2.7-minimal
 
-sudo rm -f /usr/bin/python
-sudo ln -sfn /usr/bin/python3.6 /usr/bin/python
-alias python='python3.6' 
+#sudo rm -f /usr/bin/python
+#sudo ln -sfn /usr/bin/python3.6 /usr/bin/python
+#alias python='python3.6' 
 
 
 
@@ -72,6 +72,7 @@ cd _build_win32
 ### Use the CMake toolchain from EE to make it easier to compile for Windows.
 rm -rf script_reference.html
 cmake .. -G Ninja -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw.toolchain -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_MAKE_PROGRAM="/usr/bin/ninja"
+sudo updatedb; locate /windows.h  | rev | cut -c 10- | rev |  sudo xargs -I {} ln -s {}windows.h {}Windows.h
 cmake --build . --target package
 
 cp EmptyEpsilon.zip /vagrant/
