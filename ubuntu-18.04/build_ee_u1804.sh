@@ -72,7 +72,8 @@ cd _build_win32
 ### Use the CMake toolchain from EE to make it easier to compile for Windows.
 rm -rf script_reference.html
 cmake .. -G Ninja -DSERIOUS_PROTON_DIR=../../SeriousProton -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw.toolchain -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_MAKE_PROGRAM="/usr/bin/ninja"
-cmake --build . --target package
+sudo updatedb; locate /windows.h  | rev | cut -c 10- | rev |  sudo xargs -I {} ln -s {}windows.h {}Windows.h
+ cmake --build . --target package
 
 cp EmptyEpsilon.zip /vagrant/
 
